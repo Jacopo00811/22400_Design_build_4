@@ -9,8 +9,8 @@ step2 = PWM(Pin(27))
 direc1 = Pin(32, Pin.OUT)
 direc2 = Pin(15, Pin.OUT)
 
-step1.freq(1000)
-step2.freq(1000)
+step1.freq(8000)
+step2.freq(12500)
 
 while True:
     #direc1.value(0)
