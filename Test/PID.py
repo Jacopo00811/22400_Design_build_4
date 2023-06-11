@@ -1,78 +1,88 @@
-#Python
-# -*- coding: utf-8 -*-
-"""
-PID Controller.
+from Controllers.Cooler import Cooler
+from Sensors.Temperature import TemperatureSensor
+# from sensors.OLED import OLEDScreen
+from Controllers.PID import PID
+from Controllers.PumpPWM import PumpPWM
+from Controllers.TimeAndDate import TimeAndDate
+from machine import Pin
+import time
 
-Description: Class defining the functionality and attributes of a
-    PID controller (control system for a desired attribute)
+def adjustSpeedCoolerPump(outputPID):
+    if outputPID <= 2:
+        cooler.LowPower()
+        pumpCooler.set_speed(0)
+
+    elif outputPID <= 20:
+        cooler.LowPower()
+        pumpCooler.set_speed(int(600*outputPID)) 
+
+    else:
+        cooler.HighPower()
+        current = pumpCooler.step.freq()
+        for i in range((12500-current)//1000):
+            time.sleep(0.05)
+            pumpCooler.set_speed(int(current + i*1000))
+
+temperatureSensor = TemperatureSensor() ## TODO pin n.
+# oledScreen = OLEDScreen()
+pumpAlgae = PumpPWM(15, 33)  ## TODO decide if we want it and pin n.
+pumpCooler = PumpPWM(27, 12) ##TODO pin n.
+cooler = Cooler()
+dateAndTime = TimeAndDate()
+
+# PID controller and parameters
+PID = PID(temperatureSensor.read_temp())
+PID.setProportional(8.5)
+PID.setIntegral(2)
+PID.setDerivative(0.2)
+
+try:
+    titolo = open("pid.txt") # Check if the file exists
+except OSError:
+    with open("ultimo_file.txt", "w") as my_file:  # If not, create it in "write" mode
+        my_file.write("First test of PID \n")
+
+# Start with high cooling power
+cooler.HighPower()
+cooler.fanOn()
+
+Pinbutton = Pin(00, Pin.IN) # TODO: Def. pin
+
+ACTIVATION_INTERVAL_PID = 10000 # 10s 
+
+#Run the first activation and start timer
+initalTemperature = temperatureSensor.read_temp()
+initalActuatorValue = PID.update(initalTemperature)
+adjustSpeedCoolerPump(initalActuatorValue)
+timeActivationPump = time.tick_ms()
+
+while(True):
+    temperatures = []
+    for i in range(10):
+        temperatures.append(temperatureSensor.read_temp())
+    newTemp = sum(temperatures)/10
+
+    with open("pid.txt", "a") as my_file:
+        my_file.write(dateAndTime.date_time()+","+str(newTemp)+"\n")
 
 
-@__Author --> Created by Adrian Zvizdenco & Jeppe Mikkelsen
-@__Date & Time --> Created on 10/06/2022
-@__Version --> 1.0
-@__Status --> Prod
-"""
-class PIDControl:
-    """
-        PID control system with custom parameters 
-            # r - is the desired attribute
-            # v - output system attribute (sensor measured)
-            # e - array of tracking errors
-    """
-    def __init__(self,measured, desired):
-        """
-            PID controller constructor with specific
+    # Update the oled screen
+    # oledScreen.setTemp(newTemp)
+    # oledScreen.setOD
+    # oledScreen.printOverview()
 
-            Params:
-                measured - starting attribute value measured
-                desired - attribute value to be achieved
-        """
-        self.v = measured
-        self.r = desired
-        self.e = [self.v-self.r]
-        self.his = 1
+    # PID controller
+    actuatorValue = PID.update(newTemp)
+    print("Actuator:" + str(actuatorValue))
+    print("Avg Temperature:" + str(newTemp))
+    print("Time:" + str(dateAndTime.date_time()))
+    print("PID Values:" + PID.overviewParameters)
 
-    # Time 200
-    def setProportional(self, value):
-        """
-            Method to set the value for the proportional term.
-        """
-        self.P = value
+    if time.ticks_diff(time.ticks_ms(), timeActivationPump) >= ACTIVATION_INTERVAL_PID:
+        adjustSpeedCoolerPump(actuatorValue)
+        timeActivationPump = time.tick_ms()
 
-    # Time 200
-    def setIntegral(self, value):
-        """
-            Method to set the value for the integral term.
-        """
-        self.I = value
+    if Pinbutton.value() == 1:
+        break
 
-    # Time 200
-    def setDerivative(self, value):
-        """
-            Method to set the value for the derivative term.
-        """
-        self.D = value
-    
-    #Influcenced by slides of PID update
-    
-    def update(self, newMeasure):
-        """
-            Method to update the actuator value based on new measurements.
-
-            Returns:
-                u - the actuator value that affects the system input to change attribute.
-        """
-        if self.his > 10:
-            self.e.pop(0)
-        self.e.append(newMeasure - self.r)
-        self.his += 1
-        self.v = newMeasure
-        Pterm = self.P * self.e[-1] # Et
-        Iterm = self.I * sum(self.e)
-        Dterm = self.D * (self.e[-1] - self.e[-2])
-        self.overview = "\nP -> "+ str(Pterm) + "\nI -> "+ str(Iterm) + "\nD -> "+ str(Dterm)
-        u = Pterm + Iterm + Dterm
-        return u
-    
-    
-    
+pumpCooler.set_speed(0)
