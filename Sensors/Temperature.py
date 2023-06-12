@@ -18,7 +18,6 @@ ADC_Vmax = 3.15
 
 class TemperatureSensor:
     def __init__(self, pinNumber) -> None:
-
         self.adc = ADC(Pin(pinNumber))
         self.adc.atten(ADC.ATTN_11DB)
         self.adc.width(ADC.WIDTH_10BIT)
