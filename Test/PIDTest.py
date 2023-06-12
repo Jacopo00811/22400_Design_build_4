@@ -34,7 +34,7 @@ oledScreen = OLED(22, 23)
 pumpCooler = PumpPWM(15, 27, 1)
 pumpAlgea = PumpPWM(33, 12, 1)
 cooler = Cooler(4, 5)
-dateAndTime = TimeAndDate()
+dateAndTime = TimeAndDate(2023, 6, 13, 1, hour, minutes) # TODO: ADD UPDATED PARAMETERS
 
 # PID controller and parameters
 PID = PID(temperatureSensor.read_temp(), 16)
@@ -87,7 +87,7 @@ while(True):
         print("Time:" + str(dateAndTime.date_time()))
         print("PID Values:" + PID.overviewParameters)
         with open("pid.txt", "a") as my_file:
-            my_file.write(dateAndTime.date_time()+","+str(newTemp)+"\n")
+            my_file.write(dateAndTime.date_time()+", "+str(newTemp)+"\n")
             my_file.close()
 
         # Update the oled screen
