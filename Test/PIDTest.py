@@ -39,9 +39,9 @@ PID.setIntegral(2)
 PID.setDerivative(0.2)
 
 try:
-    titolo = open("pid.txt") # Check if the file exists
+    my_file = open("pid.txt") # Check if the file exists
 except OSError:
-    with open("ultimo_file.txt", "w") as my_file:  # If not, create it in "write" mode
+    with open("pid.txt", "w") as my_file:  # If not, create it in "write" mode
         my_file.write("First test of PID \n")
 
 # Start with high cooling power
