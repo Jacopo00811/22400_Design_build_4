@@ -1,6 +1,6 @@
 from Controllers.Cooler import Cooler
 from Sensors.Temperature import TemperatureSensor
-# from sensors.OLED import OLEDScreen
+from Controllers.OLED import OLED
 from Controllers.PID import PID
 from Controllers.PumpPWM import PumpPWM
 from Controllers.TimeAndDate import TimeAndDate
@@ -10,24 +10,26 @@ import time
 def adjustSpeedCoolerPump(outputPID):
     if outputPID <= 2:
         cooler.LowPower()
-        pumpCooler.set_speed(0)
+        pumpCooler.set_speed(1)
 
     elif outputPID <= 20:
         cooler.LowPower()
-        pumpCooler.set_speed(int(600*outputPID)) 
+        pumpCooler.set_speed(int(500*outputPID)) # 10000 freq
 
     else:
         cooler.HighPower()
-        current = pumpCooler.step.freq()
-        for i in range((12500-current)//1000):
-            time.sleep(0.05)
-            pumpCooler.set_speed(int(current + i*1000))
+        pumpCooler.set_speed(10000)
+        time.sleep(0.5)
+        pumpCooler.set_speed(15000)
+        # current = pumpCooler.step.freq()
+        # for i in range((12500-current)//1000):
+        #     time.sleep(0.05)
+        #     pumpCooler.set_speed(int(current + i*1000))
 
-temperatureSensor = TemperatureSensor() ## TODO pin n.
-# oledScreen = OLEDScreen()
-pumpAlgae = PumpPWM(15, 33)  ## TODO decide if we want it and pin n.
-pumpCooler = PumpPWM(27, 12) ##TODO pin n.
-cooler = Cooler()
+temperatureSensor = TemperatureSensor(32)
+oledScreen = OLED(22, 23)
+pumpCooler = PumpPWM(15, 27, 1)
+cooler = Cooler(4, 36)
 dateAndTime = TimeAndDate()
 
 # PID controller and parameters
@@ -46,7 +48,7 @@ except OSError:
 cooler.HighPower()
 cooler.fanOn()
 
-Pinbutton = Pin(00, Pin.IN) # TODO: Def. pin
+Pinbutton = Pin(39, Pin.IN) # TODO: Def. pin
 
 ACTIVATION_INTERVAL_PID = 10000 # 10s 
 
@@ -67,9 +69,8 @@ while(True):
 
 
     # Update the oled screen
-    # oledScreen.setTemp(newTemp)
-    # oledScreen.setOD
-    # oledScreen.printOverview()
+    oledScreen.display_PID_controls(newTemp, actuatorValue, PID.overviewParameters)
+
 
     # PID controller
     actuatorValue = PID.update(newTemp)
@@ -85,4 +86,5 @@ while(True):
     if Pinbutton.value() == 1:
         break
 
-pumpCooler.set_speed(0)
+pumpCooler.set_speed(1)
+cooler.fanOff()
