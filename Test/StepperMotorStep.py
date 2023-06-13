@@ -1,10 +1,15 @@
-
+#Python
+# -*- coding: utf-8 -*-
 """
 Pump Controller (bit-bang)
 
 Description: Class defining the controller for the stepper 
         motor pumping water using the bit-bang(flipping bits).
 
+@__Author --> Created by Adrian Zvizdenco & Jeppe Mikkelsen
+@__Date & Time --> Created on 06/06/2022
+@__Version --> = 1.2
+@__Status --> = Test
 """
 
 from machine import Pin
@@ -13,30 +18,15 @@ import utime
 
 
 class PumpBB:
-    """
-        Bit-banging Pump Class
-    """
-    def __init__(self, dir=12, step=14) -> None:
-        """
-            Bit-banging Pump constructor with default DIRECTION pin 15 and STEP pin 33.
-            Bit-banging method used for the pump feeding mussels with algae water.
-        """
-        self.dir = Pin(dir, Pin.OUT)
-        self.step = Pin(step, Pin.OUT)
+    def __init__(self, pinDirection, pinStep):
+        self.dir = Pin(pinDirection, Pin.OUT)
+        self.step = Pin(pinStep, Pin.OUT)
 
-    # Time 200 ticks
     def stepOn(self):
-        """
-            Method to perform one step on the pump(flip value of STEP).
-        """
-        self.step.value( 1-self.step.value() )
+        self.step.value(1-self.step.value())
     
-    # Time 200 ticks
     def switchDir(self):
-        """
-            Method to switch direction of rotation on the stepper motor.
-        """
-        self.dir.value( 1-self.dir.value() )
+        self.dir.value(1-self.dir.value())
 
     # Cycle for given amount of steps
     # 1600 steps - 1 full rotation  
@@ -49,7 +39,7 @@ class PumpBB:
             Params:
                 steps - amount of steps to be performed by the pump
         """
-        for i in range(steps):
+        for _ in range(steps):
             self.stepOn()
             utime.sleep_us(10)
             self.stepOn()
@@ -67,9 +57,3 @@ class PumpBB:
         utime.sleep_us(sleep)
         self.stepOn()
         utime.sleep_us(sleep)
-
-
-pump = PumpBB()
-
-while(1):
-    pump.cycle(1600)
