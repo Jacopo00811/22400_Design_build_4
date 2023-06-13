@@ -7,7 +7,7 @@ GREEN = 1
 BLUE = 2
  
 # Declare pins
-pwm_pins = [13,12,14]
+pwm_pins = [17,16,21]
 # Setup pins for PWM
 pwms = [PWM(Pin(pwm_pins[RED])),PWM(Pin(pwm_pins[GREEN])),
                 PWM(Pin(pwm_pins[BLUE]))]
