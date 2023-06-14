@@ -13,7 +13,7 @@ def cb(topic, msg):
 
 # WiFi connection information
 WIFI_SSID = 'Redmi Note 11S'
-WIFI_PASSWORD = '123456'
+WIFI_PASSWORD = '12345678'
 
 # turn off the WiFi Access Point
 ap_if = network.WLAN(network.AP_IF)
@@ -46,8 +46,8 @@ mqtt_client_id = bytes('client_'+str(random_num), 'utf-8')
 #   Caveat: a secure connection uses about 9k bytes of the heap
 #         (about 1/4 of the micropython heap on the ESP8266 platform)
 ADAFRUIT_IO_URL = b'io.adafruit.com' 
-ADAFRUIT_USERNAME = b'<ENTER_ADAFRUIT_USERNAME>'
-ADAFRUIT_IO_KEY = b'<ENTER_ADAFRUIT_IO_KEY>'
+ADAFRUIT_USERNAME = b'Jacopo00811'
+ADAFRUIT_IO_KEY = b'aio_gAcy85Q4uB41fCKgWBfQGdvZ4Ijb'
 ADAFRUIT_IO_FEEDNAME = b'freeHeap'
 
 client = MQTTClient(client_id=mqtt_client_id, 
