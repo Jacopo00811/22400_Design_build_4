@@ -8,10 +8,12 @@ class OLED:
         self.oled.fill(0)
         
     
-    def display_PID_controls(self, temperature, actuatorValue, parameters):
+    def display_PID_controls(self, temperature, actuatorValue, frequency, dateAndTime):
         self.oled.fill(0)
-        self.oled.text('Temperature: ' + str(temperature), 0, 8)
-        self.oled.text('Actuator Value: ' + str(actuatorValue), 0, 16)
-        self.oled.text('PID parameters: ' + parameters, 0, 24)
-       # self.oled.text() #TODO test it 
-        #self.oled.text()
+        self.oled.text('Temp: ' + str(temperature), 0, 8)
+        self.oled.text('Act. V: ' + str(actuatorValue), 0, 16)
+        self.oled.text('Freq: ' + str(frequency), 0, 24)
+        self.oled.text(str(dateAndTime), 0, 32)
+        #self.oled.scroll(20, 0)
+        self.oled.show()
+        #self.oled.text('PID parameters: ' + parameters, 0, 24)
