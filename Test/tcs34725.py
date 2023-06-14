@@ -160,8 +160,8 @@ class TCS34725:
         blue = pow((int((b/c) * 256) / 255), 2.5) * 255
         return red, green, blue
 
-    def html_hex(data):
-        r, g, b = html_rgb(data)
+    def html_hex(self, data):
+        r, g, b = self.html_rgb(data)
         return "{0:02x}{1:02x}{2:02x}".format(int(r),
 								 int(g),
 								 int(b))

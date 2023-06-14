@@ -37,8 +37,8 @@ def color_rgb_bytes(color_raw):
         blue = 255
     return (red, green, blue)
 
-r.duty(40)
-g.duty(0)
+r.duty(0)
+g.duty(214)
 b.duty(255)
 
 print("let there be light")

@@ -16,7 +16,7 @@ class LED:
         self.green = 214 
         self.blue = 255
 
-    def map_range(x, in_min, in_max, out_min, out_max):
+    def map_range(self, x, in_min, in_max, out_min, out_max):
         return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
     def turn_off_led(self):
