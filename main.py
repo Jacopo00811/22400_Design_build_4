@@ -127,6 +127,33 @@ while (1):
     
 
 
+    
+led = LED()
+greenLed = PWM(Pin(25))
+
+greenLed.duty(400)
+
+from Sensors.Light_Sensor import LightSensor
+
+sensor = LightSensor()
+
+
+while (1):
+    led.turn_on_led()
+    #RGB.set_gain(60) # Gain must be 1, 4, 16 or 60
+    arr = []
+    for _ in range(10):
+        arr.append(sensor.readIntensity())
+    
+
+    print("\nIntensity: " + str(sum(arr)/10))
+    print("\nOD: " + str(sensor.computeOD(sum(arr)/10)))
+    print("\nConcentration: " + str(sensor.computeConc(sensor.computeOD(sum(arr)/10))))
+    time.sleep(5)
+    print("\n\n")
+    
+
+
 
 
 
