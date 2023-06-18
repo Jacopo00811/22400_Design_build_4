@@ -2,6 +2,7 @@ from machine import Pin, PWM
  
 
 """
+From RGB to YBM:
 R -> Y
 G -> B
 B -> M

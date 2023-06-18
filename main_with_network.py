@@ -1,4 +1,3 @@
-
 from Controllers.Cooler import Cooler
 from Sensors.Temperature import TemperatureSensor
 from Controllers.OLED import OLED
@@ -15,6 +14,7 @@ import sys
 import os 
 
 # TODO: MAKE EVERTHING NETWORK CRASH PROOF
+# TODO: ADD LIGHT ON/OFF WHEN TAKING OD READINGS
 
 RUN = True
 
@@ -90,8 +90,9 @@ def connect_wifi():
     if wifi.isconnected():
         print('Connected')
     else:
-        print('Not connected')
-        sys.exit()
+        wifi.disconnect()
+        print("\nNot connected... Disconnected from the server, activities will run locally\n")
+        # sys.exit()
 
 def adjustSpeedCoolerPump(outputPID):
     if outputPID <= 2:
@@ -109,17 +110,22 @@ def adjustSpeedCoolerPump(outputPID):
         pumpCooler.set_speed(16000)
 
 def send_data(temperature, OD, pump1, pump2, cooler):
-    client.publish(temperature_feed, bytes(str(temperature), 'utf-8'), qos=0)
-    client.publish(OD_feed, bytes(str(OD), 'utf-8'), qos=0)
-    client.publish(pump1_feed,  bytes(str(pump1), 'utf-8'), qos=0)
-    client.publish(pump2_feed,  bytes(str(pump2), 'utf-8'), qos=0)
-    client.publish(cooler_status_feed,  bytes(str(cooler), 'utf-8'), qos=0)
-    print("Temp - ", str(temperature))
-    print("OD - ", str(OD))
-    print("Pump 1 status - ", str(pump1))
-    print("Pump 2 status - ", str(pump2))
-    print("Cooler status - ", str(cooler))
-    print('Msg sent')
+    try:
+        client.publish(temperature_feed, bytes(str(temperature), 'utf-8'), qos=0)
+        client.publish(OD_feed, bytes(str(OD), 'utf-8'), qos=0)
+        client.publish(pump1_feed,  bytes(str(pump1), 'utf-8'), qos=0)
+        client.publish(pump2_feed,  bytes(str(pump2), 'utf-8'), qos=0)
+        client.publish(cooler_status_feed,  bytes(str(cooler), 'utf-8'), qos=0)
+        print("Temp - ", str(temperature))
+        print("OD - ", str(OD))
+        print("Pump 1 status - ", str(pump1))
+        print("Pump 2 status - ", str(pump2))
+        print("Cooler status - ", str(cooler))
+        print('Msg sent')
+    except:
+        client.disconnect()
+        print("\nDisconnected from the server, activities will run locally\n")
+        # sys.exit()
 
 def read_temperature(temperatureSensor):
     temperatures = [] 
@@ -128,13 +134,6 @@ def read_temperature(temperatureSensor):
         temperatures.append(temperatureSensor.read_temp())
     newTemp = sum(temperatures)/i - 1 # Temperature sensor off-set compensation
     return newTemp
-
-def read_OD(lightSensor):
-    readings = []
-    i = 10 # Samples to average on
-    for _ in range(i):
-        readings.append(lightSensor.readIntensity())
-    return sum(readings)/i
 
 
 connect_wifi() # Connecting to WiFi Router 
@@ -149,7 +148,9 @@ try:
     client.connect()
 except Exception as e:
     print('Could not connect to MQTT server {}{}'.format(type(e).__name__, e))
-    sys.exit()
+    client.disconnect()
+    print("\nDisconnected from the server, activities will run locally\n")
+    # sys.exit()
         
 # Define call back function
 client.set_callback(call_back) # Callback function               
@@ -161,13 +162,13 @@ client.subscribe(sys_running_feed) # Subscribing to particular topic
 #                                  True if pumpCooler.step.freq() else False,                       
 #                                  True if pumpAlgea.step.freq() else False, "12 V" if cooler.power.value() == 0 else "5 V"))
 
+
+
 #Run the first activation and start timer
 initalTemperature = temperatureSensor.read_temp()
 initalActuatorValue = PID.update(initalTemperature)
 adjustSpeedCoolerPump(initalActuatorValue)
 timeActivationPump = utime.ticks_ms()
-
-
 
 while RUN == True:
     newTemp = read_temperature(temperatureSensor)
@@ -180,7 +181,8 @@ while RUN == True:
         client.check_msg()
     except:
         client.disconnect()
-        sys.exit()
+        print("\nDisconnected from the server, activities will run locally\n")
+        # sys.exit()
 
     if utime.ticks_diff(utime.ticks_ms(), timeActivationPump) >= ACTIVATION_INTERVAL_PID:
         adjustSpeedCoolerPump(actuatorValue)
@@ -193,7 +195,7 @@ while RUN == True:
 
         pump1 = pumpCooler.step.freq()
         pump2 = pumpAlgea.step.freq()
-        ODValue = read_OD(lightSensor)
+        ODValue = lightSensor.computeOD()
         
         # Write to file
         with open("pid.txt", "a") as my_file:

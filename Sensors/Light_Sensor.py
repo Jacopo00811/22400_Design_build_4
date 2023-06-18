@@ -4,40 +4,25 @@ import math
 
 class LightSensor:
     def __init__(self):
-        """ 
-            LightSensor constructor in hardcoded ADC pin 34.
-        """
-        # ADC component for the light sensor
         self.adc = ADC(Pin(34))
         self.adc.atten(ADC.ATTN_11DB)
         self.adc.width(ADC.WIDTH_12BIT)
-        self.ref = 4000
+        self.reference = 4000 # TODO: Set our reference for final setup
 
     def readIntensity(self):
-        """
-            Method to measure the intensity received by the LightSensor.
-            Performs 100 measurements and averages the returned result.
-        """
-
         intensity = [] 
         for _ in range(100):
             intensity.append(self.adc.read())
         return sum(intensity)/100
     
-    def computeOD(self, rawInten):
-        """
-            Compute the optical density of the solution measured, based on raw intensity.
+    def computeOD(self):
+        intensity = self.readIntensity()
 
-            Params:
-                rawInten - raw intensity measured with the LightSensor
-            
-            Returns:
-                rawOD - the value of the optical density computed with the formula
-        """
         # Apply formula for optical density
-        rawOD = (-math.log10(rawInten / self.ref))
+        rawOD = (-math.log10(intensity / self.reference))
         return rawOD
     
+    # TODO: Adjust parameters
     def computeConc(self, optDensity):
         """
             Compute the concentration (cells/mL), based on the optical density computed.
