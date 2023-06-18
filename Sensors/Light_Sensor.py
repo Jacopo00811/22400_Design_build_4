@@ -18,7 +18,7 @@ class LightSensor:
     def computeOD(self):
         intensity = self.readIntensity()
 
-        # Apply formula for optical density
+        # OD formula
         rawOD = (-math.log10(intensity / self.reference))
         return rawOD
     

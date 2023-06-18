@@ -3,6 +3,7 @@ from Sensors.Temperature import TemperatureSensor
 from Controllers.OLED import OLED
 from Controllers.PID import PID
 from Controllers.PumpPWM import PumpPWM
+from Controllers.PumpStep import PumpStep
 from Controllers.TimeAndDate import TimeAndDate
 from Sensors.Light_Sensor import LightSensor
 from machine import Pin, Timer
@@ -13,8 +14,9 @@ import time
 import sys
 import os 
 
-# TODO: MAKE EVERTHING NETWORK CRASH PROOF
+# TODO: MAKE EVERTHING NETWORK CRASH PROOF: MAYBE IT'S DONE
 # TODO: ADD LIGHT ON/OFF WHEN TAKING OD READINGS
+# TODO: IMPLEMENT THE PUMPING OF FOOD
 
 RUN = True
 
@@ -22,7 +24,7 @@ Pinbutton = Pin(39, Pin.IN)
 lightSensor = LightSensor()
 temperatureSensor = TemperatureSensor(32)
 oledScreen = OLED(22, 23)
-pumpCooler = PumpPWM(15, 27, 1)
+pumpCooler = PumpStep(15, 27)
 pumpAlgea = PumpPWM(33, 12, 1) # TODO: USE STEPS
 cooler = Cooler(4, 5)
 dateAndTime = TimeAndDate(2023, 6, 13, 1, 16, 57) # TODO: ADD UPDATED PARAMETERS
@@ -86,7 +88,7 @@ def connect_wifi():
         while (not wifi.isconnected() and timeout < 10):
             print(10 - timeout)
             timeout = timeout + 1
-            time.sleep(0.5) ### MAYBE NEED MORE TIME TO CONNECT????
+            time.sleep(0.5) # TODO: MAYBE NEED MORE TIME TO CONNECT?
     if wifi.isconnected():
         print('Connected')
     else:
@@ -156,13 +158,17 @@ except Exception as e:
 client.set_callback(call_back) # Callback function               
 client.subscribe(sys_running_feed) # Subscribing to particular topic
 
-# timer = Timer(0)
-# timer.init(period = 10000, mode = Timer.PERIODIC, 
-#            callback = send_data(read_temperature(temperatureSensor), read_OD(lightSensor),
-#                                  True if pumpCooler.step.freq() else False,                       
-#                                  True if pumpAlgea.step.freq() else False, "12 V" if cooler.power.value() == 0 else "5 V"))
 
+"""
+This allows to send date with an independet timer
 
+timer = Timer(0)
+timer.init(period = 10000, mode = Timer.PERIODIC, 
+           callback = send_data(read_temperature(temperatureSensor), read_OD(lightSensor),
+                                 True if pumpCooler.step.freq() else False,                       
+                                 True if pumpAlgea.step.freq() else False, "12 V" if cooler.power.value() == 0 else "5 V"))
+
+"""
 
 #Run the first activation and start timer
 initalTemperature = temperatureSensor.read_temp()
@@ -203,10 +209,11 @@ while RUN == True:
             my_file.close()
 
         # Send to the cloud
+        # TODO: Might want to add an if statement to check if there's connection to avoid 
         send_data(newTemp, ODValue, pump1, pump2, "12 V" if cooler.power.value() == 0 else "5 V")
 
         # Update the oled screen
-        oledScreen.display_PID_controls(newTemp, actuatorValue, pump1, dateAndTime.date_time()) # TODO: Number of cells or OD instead of date and time
+        oledScreen.display_PID_controls(newTemp, actuatorValue, pump1, dateAndTime.date_time()) # TODO: Display number of cells or OD instead of date and time
 
     if Pinbutton.value() == 1:
         RUN_TO_FALSE()
@@ -214,7 +221,6 @@ while RUN == True:
 
 # Turn off system
 pumpCooler.set_speed(1)
-pumpAlgea.set_speed(1)
 cooler.fanOff()
 print("\n-------------------------------------------------\n")
 print("------------------System stopped!!!!!!---------------")
