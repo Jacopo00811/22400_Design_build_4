@@ -8,16 +8,18 @@ class LightSensor:
         self.adc.atten(ADC.ATTN_11DB)
         self.adc.width(ADC.WIDTH_12BIT)
         self.reference = 4000 # TODO: Set our reference for final setup
+        self.RGBStrip = Pin(25, Pin.OUT)
 
     def readIntensity(self):
+        self.RGBStrip.value(0)
         intensity = [] 
         for _ in range(100):
             intensity.append(self.adc.read())
+        self.RGBStrip.value(1)
         return sum(intensity)/100
     
     def computeOD(self):
         intensity = self.readIntensity()
-
         # OD formula
         rawOD = (-math.log10(intensity / self.reference))
         return rawOD

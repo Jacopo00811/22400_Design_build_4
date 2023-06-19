@@ -24,8 +24,8 @@ Pinbutton = Pin(39, Pin.IN)
 lightSensor = LightSensor()
 temperatureSensor = TemperatureSensor(32)
 oledScreen = OLED(22, 23)
-pumpCooler = PumpStep(15, 27)
-pumpAlgea = PumpPWM(33, 12, 1) # TODO: USE STEPS
+pumpCooler = PumpStep(15, 27, 1)
+pumpAlgea = PumpPWM(33, 12) 
 cooler = Cooler(4, 5)
 dateAndTime = TimeAndDate(2023, 6, 13, 1, 16, 57) # TODO: ADD UPDATED PARAMETERS
 

@@ -2,9 +2,9 @@ from machine import Pin, PWM
 
 class LED:
     def __init__ (self)-> None:
-        self.Red = PWM(Pin(17))
+        self.Red = PWM(Pin(19))
         self.Green = PWM(Pin(16))
-        self.Blue = PWM(Pin(21))
+        self.Blue = PWM(Pin(18))
 
     def turn_off_led(self):
         self.Red.duty(0)
