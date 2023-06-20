@@ -9,8 +9,11 @@ class PumpStep:
     def oneStep(self):
         self.step.value(1-self.step.value())
     
-    def switch_direction(self):
-        self.direction.value(1-self.direction.value())
+    def direction_clockwise(self):
+        self.direction.value(1)
+
+    def direction_counterclockwise(self):
+        self.direction.value(0)
   
     def cycle(self, stepsToPerform):
         # 3200 steps equals to one full rotation
