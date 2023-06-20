@@ -120,10 +120,11 @@ def adjustSpeedCoolerPump(outputPID):
         pumpCooler.set_speed(int(1000*outputPID))
 
     else:
+        cooler.fanOn()
         cooler.HighPower()
-        pumpCooler.set_speed(10000)
-        time.sleep(0.2)
-        pumpCooler.set_speed(16000)
+        pumpCooler.set_speed(8000)
+        time.sleep(0.4)
+        pumpCooler.set_speed(14000)
 
 # def send_data(temperature, OD, pump1, pump2, cooler):
 #     try:
@@ -193,9 +194,13 @@ timeActivationPump = utime.ticks_ms()
 mLOfFood = -Volume_of_bucket*(Concentration_mussel_bucket_at_time - Concentration_mussel_bucket)/(lightSensor.computeConc(lightSensor.computeOD()) - Concentration_mussel_bucket)
 cycles_clockwise = mLOfFood/0.3155 + CLOCK_WISE_EMPTY_PUMP # Feed the mussel
 cycles_couterclockwise =  mLOfFood/0.2868 + COUNTERCLOCK_WISE_EMPTY_PUMP # Feed the algae
-pumpAlgae.direction_clockwise()
-pumpAlgae.cycle(cycles_clockwise)
+
+# print("\nMussels fed with: " + str(cycles_clockwise*3200))
+# print("mL: " + str(mLOfFood))
+#pumpAlgae.direction_clockwise()
+#pumpAlgae.cycle(cycles_clockwise*3200)
 timeActivationFood = utime.ticks_ms()
+
 
 while RUN == True:
     newTemp = read_temperature(temperatureSensor)
@@ -219,7 +224,7 @@ while RUN == True:
         print("Time:" + str(dateAndTime.date_time()))
         print("PID Values:" + PID.overviewParameters)
         print("Frequency cooler pump: " + str(pumpCooler.step.freq()))
-        # print("ADC: " + str(temperatureSensor.adc.read()))
+        print("Light intensity: " + str(lightSensor.readIntensity()))
 
         pump1 = pumpCooler.step.freq()
         # pump2 = pumpAlgae.step.freq()
@@ -239,9 +244,11 @@ while RUN == True:
         # Update the oled screen
         oledScreen.display_PID_controls(newTemp, concentration, pump1, dateAndTime.date_time())
 
-    if (utime.ticks_diff(utime.ticks_ms(), timeActivationFood) >= ACTIVATION_INTERVAL_FOOD):
+    if (utime.ticks_diff(utime.ticks_ms(), timeActivationFood) >= ACTIVATION_CONCENTRATION_MUSSEL):
+        print("\nAlgae fed with: " + str(cycles_couterclockwise*3200))
+        print("mL: " + str(mLOfFood))
         pumpAlgae.direction_counterclockwise()
-        pumpAlgae.cycle(cycles_couterclockwise)
+        pumpAlgae.cycle(cycles_couterclockwise*3200)
         
         Concentration_mussel_bucket_at_time = 750
 
@@ -249,9 +256,11 @@ while RUN == True:
         cycles_clockwise = mLOfFood/0.3155 + CLOCK_WISE_EMPTY_PUMP # Feed the mussel
         cycles_couterclockwise =  mLOfFood/0.2868 + COUNTERCLOCK_WISE_EMPTY_PUMP # Feed the algae
         
+        print("\nAlgae fed with: " + str(cycles_clockwise*3200))
+        print("mL: " + str(mLOfFood))
         pumpAlgae.direction_clockwise()
-        pumpAlgae.cycle(cycles_clockwise)
-
+        pumpAlgae.cycle(cycles_clockwise*3200)
+        
         timeActivationFood = utime.ticks_ms()
 
     if Pinbutton.value() == 1:

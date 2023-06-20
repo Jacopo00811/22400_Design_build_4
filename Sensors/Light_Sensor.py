@@ -29,4 +29,4 @@ class LightSensor:
     
     def computeConc(self, optDensity):
         # Compute the concentration (cells/mL), based on the optical density computed.
-        return 1004576.32*optDensity - 5593.12 
+        return 1048835.78*optDensity + 7370.76 

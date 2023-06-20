@@ -17,11 +17,12 @@ class PumpStep:
   
     def cycle(self, stepsToPerform):
         # 3200 steps equals to one full rotation
-        for _ in range(stepsToPerform):
+        for i in range(stepsToPerform):
             self.oneStep()
             utime.sleep_us(10)
             self.oneStep()
             utime.sleep_us(10)
+           # print(i)
 
     def intermittent_step(self, sleep):
         self.oneStep()
