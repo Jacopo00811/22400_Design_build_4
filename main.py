@@ -25,7 +25,7 @@ oledScreen = OLED(22, 23)
 pumpAlgae = PumpStep(33, 12)
 pumpCooler = PumpPWM(15, 27, 1)
 cooler = Cooler(4, 5)
-dateAndTime = TimeAndDate(2023, 6, 13, 1, 16, 57) # TODO: ADD UPDATED PARAMETERS
+dateAndTime = TimeAndDate(2023, 6, 20, 1, 11, 50) # TODO: ADD UPDATED PARAMETERS
 led = LED()
 led.turn_on_led() # Turn on led
 
@@ -214,20 +214,22 @@ while RUN == True:
     if utime.ticks_diff(utime.ticks_ms(), timeActivationPump) >= ACTIVATION_INTERVAL_PID:
         adjustSpeedCoolerPump(actuatorValue)
         timeActivationPump = utime.ticks_ms()
-        # print("\n\nActuator:" + str(actuatorValue))
-        # print("Avg Temperature:" + str(newTemp))
-        # print("Time:" + str(dateAndTime.date_time()))
-        # print("PID Values:" + PID.overviewParameters)
-        # print("Frequency cooler pump: " + str(pumpCooler.step.freq()))
+        print("\n\nActuator:" + str(actuatorValue))
+        print("Avg Temperature:" + str(newTemp))
+        print("Time:" + str(dateAndTime.date_time()))
+        print("PID Values:" + PID.overviewParameters)
+        print("Frequency cooler pump: " + str(pumpCooler.step.freq()))
+        # print("ADC: " + str(temperatureSensor.adc.read()))
 
         pump1 = pumpCooler.step.freq()
-        pump2 = pumpAlgae.step.freq()
+        # pump2 = pumpAlgae.step.freq()
+        lightIntensity = lightSensor.readIntensity()
         ODValue = lightSensor.computeOD()
         concentration = lightSensor.computeConc(ODValue)
         
         # Write to file
         with open("pid.txt", "a") as my_file:
-            my_file.write(dateAndTime.date_time()+ ", " + str(newTemp)+ ", " + str(pumpCooler.step.freq()) + ", " + str(concentration) + "\n")
+            my_file.write(dateAndTime.date_time()+ ", " + str(newTemp)+ ", " + str(pump1) + ", " + str(concentration) + ", " + str(lightIntensity) + "\n")
             my_file.close()
 
         # Send to the cloud
@@ -235,7 +237,7 @@ while RUN == True:
         #send_data(newTemp, ODValue, pump1, pump2, "12 V" if cooler.power.value() == 0 else "5 V")
 
         # Update the oled screen
-        oledScreen.display_PID_controls(newTemp, concentration, pump1, dateAndTime.date_time()) # TODO: Display number of cells or OD instead of date and time
+        oledScreen.display_PID_controls(newTemp, concentration, pump1, dateAndTime.date_time())
 
     if (utime.ticks_diff(utime.ticks_ms(), timeActivationFood) >= ACTIVATION_INTERVAL_FOOD):
         pumpAlgae.direction_counterclockwise()
