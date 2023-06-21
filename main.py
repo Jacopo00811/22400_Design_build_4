@@ -209,12 +209,12 @@ while RUN == True:
     actuatorValue = PID.update(newTemp)
 
     # Check messages from subscribed feeds
-    # try:
-    #     client.check_msg()
-    # except:
-    #     client.disconnect()
-    #     print("\nDisconnected from the server, activities will run locally\n")
-    #     # sys.exit()
+    try:
+        client.check_msg()
+    except:
+        client.disconnect()
+        print("\nDisconnected from the server, activities will run locally\n")
+        # sys.exit()
 
     if utime.ticks_diff(utime.ticks_ms(), timeActivationPump) >= ACTIVATION_INTERVAL_PID:
         adjustSpeedCoolerPump(actuatorValue)
