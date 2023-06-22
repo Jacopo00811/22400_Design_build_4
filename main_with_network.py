@@ -12,9 +12,6 @@ from umqtt.robust import MQTTClient
 import utime
 import network
 import time
-import utime
-import os 
-import random
 
 
 
@@ -27,7 +24,7 @@ oledScreen = OLED(22, 23)
 pumpAlgae = PumpStep(15, 33)
 pumpCooler = PumpPWM(27, 12, 1)
 cooler = Cooler(4, 5)
-dateAndTime = TimeAndDate(2023, 6, 21, 2, 11, 40) # TODO: ADD UPDATED PARAMETERS
+dateAndTime = TimeAndDate(2023, 6, 21, 2, 11, 40)
 led = LED()
 led.turn_on_led() # Turn on led
 
@@ -44,7 +41,7 @@ except OSError:
     with open('pid.txt', 'w') as my_file:  # If not, create it in "write" mode
         my_file.write('Test of PID\n')
 
-WIFI_SSID = 'M' #Redmi Note 11S'
+WIFI_SSID = 'Redmi Note 11S'
 WIFI_PASSWORD = 'SOMETHING'
 
 random_num = int.from_bytes(os.urandom(3), 'little')
@@ -119,7 +116,6 @@ def connect_wifi():
     else:
         wifi.disconnect()
         print("\nNot connected... Disconnected from the server, activities will run locally\n")
-        # sys.exit()
 
 def adjustSpeedCoolerPump(outputPID):
     if outputPID <= 2:
@@ -159,7 +155,6 @@ def send_data(temperature, OD, pump1, concentration, t_vs_time):
     except:
         client.disconnect()
         print("\nDisconnected from the server, activities will run locally\n")
-        # sys.exit()
 
 def read_temperature(temperatureSensor):
     temperatures = [] 
@@ -201,14 +196,14 @@ timer.init(period = 10000, mode = Timer.PERIODIC,
 
 """
 
-#Run the first activation and start timer
+# Run the first activation and start timer
 initalTemperature = temperatureSensor.read_temp()
 initalActuatorValue = PID.update(initalTemperature)
 adjustSpeedCoolerPump(initalActuatorValue)
 timeActivationPump = utime.ticks_ms()
 
-#Run the first feed and start timer
-mLOfFood = 100 #-Volume_of_bucket*(Concentration_mussel_bucket_at_time - Concentration_mussel_bucket)/(lightSensor.computeConc(lightSensor.computeOD()) - Concentration_mussel_bucket)
+# Run the first feed and start timer
+mLOfFood = -Volume_of_bucket*(Concentration_mussel_bucket_at_time - Concentration_mussel_bucket)/(lightSensor.computeConc(lightSensor.computeOD()) - Concentration_mussel_bucket)
 cycles_clockwise = mLOfFood/0.3155 + CLOCK_WISE_EMPTY_PUMP # Feed the mussel
 cycles_couterclockwise =  mLOfFood/0.2868 + COUNTERCLOCK_WISE_EMPTY_PUMP # Feed the algae
 
@@ -231,7 +226,6 @@ while RUN == True:
     except:
         client.disconnect()
         print("\nDisconnected from the server, activities will run locally\n")
-        # sys.exit()
 
     if utime.ticks_diff(utime.ticks_ms(), timeActivationPump) >= ACTIVATION_INTERVAL_PID:
         adjustSpeedCoolerPump(actuatorValue)
@@ -241,13 +235,13 @@ while RUN == True:
         print("Time:" + str(dateAndTime.date_time()))
         print("PID Values:" + PID.overviewParameters)
         print("Frequency cooler pump: " + str(pumpCooler.step.freq()))
-        #print("Light intensity: " + str(lightSensor.readIntensity()))
+        print("Light intensity: " + str(lightSensor.readIntensity()))
 
         pump1 = pumpCooler.step.freq()
         # pump2 = pumpAlgae.step.freq()
-        lightIntensity = random.uniform(1500, 1600)#lightSensor.readIntensity()
-        ODValue = random.uniform(0.2, 0.25) #lightSensor.computeOD()
-        concentration = random.uniform(130000, 140000) #lightSensor.computeConc(ODValue)
+        lightIntensity = lightSensor.readIntensity()
+        ODValue = lightSensor.computeOD()
+        concentration = lightSensor.computeConc(ODValue)
         
         # Write to file
         with open("pid.txt", "a") as my_file:
@@ -255,7 +249,7 @@ while RUN == True:
             my_file.close()
 
         # Send to the cloud
-        # TODO: Might want to add an if statement to check if there's connection to avoid 
+        # TODO: Might want to add an if statement to check if there's connection to avoid multiple printing to the console
         send_data(newTemp, ODValue, pump1, concentration, newTemp)
 
         # Update the oled screen
@@ -268,9 +262,8 @@ while RUN == True:
         pumpAlgae.cycle(cycles_couterclockwise*3200)
         
         Concentration_mussel_bucket_at_time = 750
-        # lightSensor.computeConc(lightSensor.computeOD()
-
-        mLOfFood = -Volume_of_bucket*(Concentration_mussel_bucket_at_time - Concentration_mussel_bucket)/((random.uniform(130000, 140000)) - Concentration_mussel_bucket)
+        
+        mLOfFood = -Volume_of_bucket*(Concentration_mussel_bucket_at_time - Concentration_mussel_bucket)/(lightSensor.computeConc(lightSensor.computeOD()) - Concentration_mussel_bucket)
         cycles_clockwise = mLOfFood/0.3155 + CLOCK_WISE_EMPTY_PUMP # Feed the mussel
         cycles_couterclockwise =  mLOfFood/0.2868 + COUNTERCLOCK_WISE_EMPTY_PUMP # Feed the algae
         
@@ -290,30 +283,3 @@ pumpCooler.set_speed(1)
 cooler.fanOff()
 print("\n-------------------------------------------------\n")
 print("------------------System stopped!!!!!!---------------")
-
-
-
-
-
-
-
-
-
-
-
-# from Controllers.Cooler import Cooler
-# from Controllers.PumpPWM import PumpPWM
-# from Sensors.Temperature import TemperatureSensor
-# import time
-# temperatureSensor = TemperatureSensor(32)
-# pumpCooler = PumpPWM(27, 12, 1) # 33 12
-# pumpAlgae = PumpPWM(15, 33, 1)
-# print("1.1")
-# cooler = Cooler(4, 5)
-# cooler.HighPower()
-# cooler.fanOn()
-# pumpCooler.set_speed(12000)
-# pumpAlgae.set_speed(12000)
-# while (1):
-#     print(str(temperatureSensor.read_temp()))
-#     time.sleep(2)

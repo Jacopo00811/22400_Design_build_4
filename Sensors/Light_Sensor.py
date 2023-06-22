@@ -11,8 +11,6 @@ class LightSensor:
         self.RGBStrip = Pin(25, Pin.OUT)
 
     def readIntensity(self):
-        #self.adc.atten(ADC.ATTN_11DB)
-        #self.adc.width(ADC.WIDTH_12BIT)
         self.RGBStrip.value(1) # Turn OFF RGB strip
         time.sleep(0.1)
         intensity = [] 
