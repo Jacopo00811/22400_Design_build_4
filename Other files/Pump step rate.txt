@@ -1,0 +1,27 @@
+One direction: (Clockwise)
+10 cycles = 3.7 mL without pause
+
+10 cycles = 3.11 g without pause
+10 cycles = 3.14 g without pause
+10 cycles = 3.14 g without pause
+avg: 3.13 g
+
+50 cycles = 15.64 g without pause
+50 cycles = 15.86 g without pause
+50 cycles = 15.83 g without pause
+avg: 15.776 g 
+div by 5 = 3.15 g
+
+
+
+Switch direction: (Counterclockwise)
+10 cycles = 2.83 g without pause
+10 cycles = 2.86 g without pause
+10 cycles = 2.86 g without pause
+avg: 2.85 g
+
+50 cycles = 14.28 g without pause
+50 cycles = 14.38 g without pause
+50 cycles = 14.37 g without pause
+avg: 14.343 g 
+div by 5 = 2.868 g 
