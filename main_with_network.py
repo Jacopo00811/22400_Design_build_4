@@ -49,7 +49,7 @@ mqtt_client_id = bytes('client_' + str(random_num), 'utf-8') # Just a random cli
 
 ADAFRUIT_IO_URL = b'io.adafruit.com' 
 ADAFRUIT_USERNAME = b'Jacopo00811'
-ADAFRUIT_IO_KEY = b'aio_gAcy85Q4uB41fCKgWBfQGdvZ4Ijb'
+ADAFRUIT_IO_KEY = b'####'
 
 
 ACTIVATION_INTERVAL_PID = 10000 # 10s 
